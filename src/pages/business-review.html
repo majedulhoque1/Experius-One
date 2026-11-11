@@ -22,8 +22,13 @@ scripts: review-form.js, vendor/gsap.min.js, motion/core.js, motion/next-steps.j
   <div class="container split split--form">
     <div class="form-panel">
       <form id="review-form" class="form" novalidate aria-labelledby="form-title" data-event-start="business_review_form_start" data-event-submit="business_review_form_submit">
-        <h2 id="form-title" class="heading-md">Tell us about your business</h2>
-        <p class="text-secondary">Takes about 3 minutes. Everything is required unless it says optional.</p>
+        <h2 id="form-title" class="visually-hidden">Tell us about your business</h2>
+
+        <!-- Progress: shown only once review-form.js turns the form into one question per screen. -->
+        <div class="q-progress" aria-hidden="true">
+          <span class="q-progress__count"><span data-q-current>1</span> / <span data-q-total>5</span></span>
+          <span class="q-progress__bar"><span class="q-progress__fill" data-q-fill></span></span>
+        </div>
 
         <div class="error-summary" id="error-summary" tabindex="-1" role="alert" hidden>
           <h3>{{icon:alert}}<span>There is a problem</span></h3>
@@ -43,54 +48,10 @@ scripts: review-form.js, vendor/gsap.min.js, motion/core.js, motion/next-steps.j
           <input id="f-company-url" name="company_url" type="text" tabindex="-1" autocomplete="off">
         </div>
 
-        <fieldset class="form">
-          <legend class="form-group-title">About you and your business</legend>
-
-          <div class="field" data-field="name">
-            <label for="f-name">Your name</label>
-            <input class="input" id="f-name" maxlength="100" aria-required="true" name="name" type="text" autocomplete="name" aria-describedby="f-name-error">
-            <p class="field-error" id="f-name-error">{{icon:alert}}<span></span></p>
-          </div>
-
-          <div class="field" data-field="email">
-            <label for="f-email">Work email</label>
-            <p class="hint" id="f-email-hint">We'll reply to this address.</p>
-            <input class="input" id="f-email" maxlength="254" aria-required="true" name="email" type="email" autocomplete="email" inputmode="email" aria-describedby="f-email-hint f-email-error">
-            <p class="field-error" id="f-email-error">{{icon:alert}}<span></span></p>
-          </div>
-
-          <div class="field" data-field="business">
-            <label for="f-business">Business or organization</label>
-            <input class="input" id="f-business" maxlength="120" aria-required="true" name="business" type="text" autocomplete="organization" aria-describedby="f-business-error">
-            <p class="field-error" id="f-business-error">{{icon:alert}}<span></span></p>
-          </div>
-
-          <div class="field" data-field="website">
-            <label for="f-website">Website or main online presence <span class="optional">(optional)</span></label>
-            <p class="hint" id="f-website-hint">A website, Facebook page or Instagram profile helps us prepare. Leave it blank if you don't have one yet.</p>
-            <input class="input" id="f-website" maxlength="200" name="website" type="text" inputmode="url" autocomplete="url" aria-describedby="f-website-hint">
-          </div>
-
-          <div class="field" data-field="businessType">
-            <label for="f-type">What best describes your business?</label>
-            <div class="select-wrap"><select class="select" id="f-type" aria-required="true" name="businessType" aria-describedby="f-type-error">
-              <option value="">Choose one</option>
-              <option>Special education or therapy centre</option>
-              <option>Coach, consultant or independent expert</option>
-              <option>Therapy or counseling practice</option>
-              <option>Clinic or wellness practice</option>
-              <option>Training academy or educator</option>
-              <option>Solar or battery installation</option>
-              <option>Agency looking for an implementation partner</option>
-              <option>Another service business</option>
-            </select></div>
-            <p class="field-error" id="f-type-error">{{icon:alert}}<span></span></p>
-          </div>
-        </fieldset>
-
-        <fieldset class="field" data-field="improve" aria-describedby="f-improve-hint f-improve-error">
-          <legend>What would you most like to improve?</legend>
-          <p class="hint" id="f-improve-hint">Choose as many as apply. Not sure is a perfectly good answer.</p>
+        <!-- 1 · An easy first answer: tap, no typing. -->
+        <fieldset class="q-step field" data-step="improve" data-field="improve" aria-describedby="f-improve-hint f-improve-error">
+          <legend class="q-title" tabindex="-1">What do you need help with?</legend>
+          <p class="hint" id="f-improve-hint">Choose as many as apply. "Not sure yet" is a perfectly good answer.</p>
           <div class="options options--2">
             <label class="option"><input type="checkbox" name="improve" id="f-improve" value="website">Website or digital presence</label>
             <label class="option"><input type="checkbox" name="improve" value="leads">Inquiries and lead management</label>
@@ -100,42 +61,91 @@ scripts: review-form.js, vendor/gsap.min.js, motion/core.js, motion/next-steps.j
             <label class="option"><input type="checkbox" name="improve" value="workflows">Internal workflows</label>
             <label class="option"><input type="checkbox" name="improve" value="content">Content strategy or production</label>
             <label class="option"><input type="checkbox" name="improve" value="reporting">Reporting and visibility</label>
-            <label class="option"><input type="checkbox" name="improve" value="unsure">Not sure yet. I'd like to talk it through</label>
+            <label class="option option--wide"><input type="checkbox" name="improve" value="unsure">Not sure yet. I'd like to talk it through</label>
           </div>
           <p class="field-error" id="f-improve-error">{{icon:alert}}<span></span></p>
         </fieldset>
 
-        <div class="field" data-field="context">
-          <label for="f-context">What's happening in your business right now?</label>
-          <p class="hint" id="f-context-hint">A sentence or two is enough. Please don't include passwords, patient or student details, or confidential documents.</p>
+        <!-- 2 · One tap, then it moves on. Skipped when an audience page already told us (?type=solar). -->
+        <fieldset class="q-step field" data-step="type" data-field="businessType" aria-describedby="f-type-error">
+          <legend class="q-title" tabindex="-1">What kind of business do you run?</legend>
+          <div class="options options--2">
+            <label class="option"><input type="radio" name="businessType" id="f-type" value="Special education or therapy centre">Special education or therapy centre</label>
+            <label class="option"><input type="radio" name="businessType" value="Coach, consultant or independent expert">Coach, consultant or independent expert</label>
+            <label class="option"><input type="radio" name="businessType" value="Therapy or counseling practice">Therapy or counseling practice</label>
+            <label class="option"><input type="radio" name="businessType" value="Clinic or wellness practice">Clinic or wellness practice</label>
+            <label class="option"><input type="radio" name="businessType" value="Training academy or educator">Training academy or educator</label>
+            <label class="option"><input type="radio" name="businessType" value="Solar or battery installation">Solar or battery installation</label>
+            <label class="option"><input type="radio" name="businessType" value="Agency looking for an implementation partner">Agency looking for an implementation partner</label>
+            <label class="option"><input type="radio" name="businessType" value="Another service business">Another service business</label>
+          </div>
+          <p class="field-error" id="f-type-error">{{icon:alert}}<span></span></p>
+        </fieldset>
+
+        <!-- 3 · The one written answer. Starter sentences beat a blank box. -->
+        <div class="q-step field" data-step="context" data-field="context">
+          <label class="q-title" for="f-context" id="f-context-title" tabindex="-1">What's going on in your business right now?</label>
           <textarea class="textarea" id="f-context" maxlength="2000" aria-required="true" name="context" rows="5" aria-describedby="f-context-hint f-context-error"></textarea>
           <p class="field-error" id="f-context-error">{{icon:alert}}<span></span></p>
+          <div class="q-starters" data-q-starters hidden>
+            <p class="q-starters__label" id="f-starters-label">Stuck? Tap one to start, then make it yours:</p>
+            <div class="q-starters__list" role="group" aria-labelledby="f-starters-label">
+              <button type="button" class="q-starter">Inquiries come in, but follow-up slips.</button>
+              <button type="button" class="q-starter">Booking takes too many messages back and forth.</button>
+              <button type="button" class="q-starter">We're busy, but I can't see what's working.</button>
+              <button type="button" class="q-starter">Our website doesn't bring in inquiries.</button>
+            </div>
+          </div>
+          <p class="hint" id="f-context-hint">A sentence or two is enough. Please don't include passwords, patient or student details, or confidential documents.</p>
         </div>
 
-        <fieldset class="form">
-          <legend class="form-group-title">A few optional details</legend>
-          <div class="field">
-            <label for="f-country">Country or time zone <span class="optional">(optional)</span></label>
-            <p class="hint" id="f-country-hint">Helps us suggest meeting times that suit you.</p>
-            <input class="input" id="f-country" maxlength="80" name="country" type="text" autocomplete="country-name" aria-describedby="f-country-hint">
+        <!-- 4 · The business. -->
+        <fieldset class="q-step" data-step="business">
+          <legend class="q-title" tabindex="-1">Tell us about your business</legend>
+          <div class="field" data-field="business">
+            <label for="f-business">Business or organization name</label>
+            <input class="input" id="f-business" maxlength="120" aria-required="true" name="business" type="text" autocomplete="organization" aria-describedby="f-business-error">
+            <p class="field-error" id="f-business-error">{{icon:alert}}<span></span></p>
           </div>
-          <div class="field">
-            <label for="f-contact">Preferred way to talk <span class="optional">(optional)</span></label>
-            <p class="hint" id="f-contact-hint">Choose WhatsApp or a phone call and you can add your number.</p>
-            <div class="select-wrap"><select class="select" id="f-contact" name="contactMethod" aria-describedby="f-contact-hint">
-              <option value="">No preference</option>
-              <option>Video call</option>
-              <option>Email</option>
-              <option>WhatsApp</option>
-              <option>Phone call</option>
-            </select></div>
+          <div class="field" data-field="website">
+            <label for="f-website">Website or main online presence <span class="optional">(optional)</span></label>
+            <p class="hint" id="f-website-hint">A website, Facebook page or Instagram profile helps us prepare. Leave it blank if you don't have one yet.</p>
+            <input class="input" id="f-website" maxlength="200" name="website" type="text" inputmode="url" autocomplete="url" aria-describedby="f-website-hint">
           </div>
+        </fieldset>
+
+        <!-- 5 · Contact last, once they've invested in the answers. -->
+        <fieldset class="q-step" data-step="contact">
+          <legend class="q-title" tabindex="-1">Where can we reach you?</legend>
+          <p class="hint q-lead">That's everything. We read it before we reply, within 2 working days.</p>
+          <div class="field" data-field="name">
+            <label for="f-name">Your name</label>
+            <input class="input" id="f-name" maxlength="100" aria-required="true" name="name" type="text" autocomplete="name" aria-describedby="f-name-error">
+            <p class="field-error" id="f-name-error">{{icon:alert}}<span></span></p>
+          </div>
+          <div class="field" data-field="email">
+            <label for="f-email">Email</label>
+            <p class="hint" id="f-email-hint">We'll reply to this address.</p>
+            <input class="input" id="f-email" maxlength="254" aria-required="true" name="email" type="email" autocomplete="email" inputmode="email" aria-describedby="f-email-hint f-email-error">
+            <p class="field-error" id="f-email-error">{{icon:alert}}<span></span></p>
+          </div>
+          <fieldset class="field" data-field="contactMethod" id="contact-method">
+            <legend>How would you like to talk? <span class="optional">(optional)</span></legend>
+            <div class="q-chips">
+              <label class="q-chip"><input type="radio" name="contactMethod" id="f-contact" value="Video call">Video call</label>
+              <label class="q-chip"><input type="radio" name="contactMethod" value="Email">Email</label>
+              <label class="q-chip"><input type="radio" name="contactMethod" value="WhatsApp">WhatsApp</label>
+              <label class="q-chip"><input type="radio" name="contactMethod" value="Phone call">Phone call</label>
+            </div>
+          </fieldset>
           <div class="field" data-field="phone" id="phone-field" hidden>
             <label for="f-phone">WhatsApp or phone number <span class="optional">(optional)</span></label>
             <p class="hint" id="f-phone-hint">Include your country code, for example +61 or +880.</p>
             <input class="input" id="f-phone" maxlength="30" name="phone" type="tel" autocomplete="tel" inputmode="tel" aria-describedby="f-phone-hint f-phone-error">
             <p class="field-error" id="f-phone-error">{{icon:alert}}<span></span></p>
           </div>
+          <!-- Country is no longer asked: review-form.js sends the browser's time zone instead. -->
+          <input type="hidden" name="country" id="f-country">
           <div class="field">
             <label for="f-source">How did you hear about us? <span class="optional">(optional)</span></label>
             <div class="select-wrap"><select class="select" id="f-source" name="source">
@@ -149,16 +159,19 @@ scripts: review-form.js, vendor/gsap.min.js, motion/core.js, motion/next-steps.j
               <option>Other</option>
             </select></div>
           </div>
+          <div class="field" data-field="consent">
+            <label class="option consent"><input type="checkbox" id="f-consent" aria-required="true" name="consent" aria-describedby="f-consent-error"><span class="option__text">I agree that Experius can use these details to reply to my request. See the <a href="/privacy.html">privacy notice</a> for what we keep and for how long.</span></label>
+            <p class="field-error" id="f-consent-error">{{icon:alert}}<span></span></p>
+          </div>
         </fieldset>
 
-        <div class="field" data-field="consent">
-          <label class="option consent"><input type="checkbox" id="f-consent" aria-required="true" name="consent" aria-describedby="f-consent-error"><span class="option__text">I agree that Experius can use these details to reply to my request. See the <a href="privacy.html">privacy notice</a> for what we keep and for how long.</span></label>
-          <p class="field-error" id="f-consent-error">{{icon:alert}}<span></span></p>
-        </div>
-
         <div class="form-footer">
-          <button class="btn btn--primary btn--block" type="submit"><span>Send my request</span></button>
-          <p>We read every request before replying. There's no mailing list, and we won't share your details.</p>
+          <div class="q-nav">
+            <button class="btn btn--secondary q-back" type="button" data-q-back>Back</button>
+            <button class="btn btn--primary q-next" type="button" data-q-next>Continue</button>
+            <button class="btn btn--primary q-send" type="submit"><span>Send my request</span></button>
+          </div>
+          <p class="q-footnote">We read every request before replying. There's no mailing list, and we won't share your details.</p>
           <p class="form-fallback">Prefer email? Write to <a href="mailto:hello@experius.xyz">hello@experius.xyz</a>.</p>
           <p class="visually-hidden" role="status" id="form-status"></p>
         </div>

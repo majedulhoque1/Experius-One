@@ -983,6 +983,112 @@ html:not(.js-ready) .nav-item:hover .nav-sub[hidden], html:not(.js-ready) .nav-i
 .assure strong { font-size: var(--text-sm); }
 .assure span { color: var(--color-text-secondary); }
 .field[hidden] { display: none; }
+/* Business Review: one question per screen (experiment, branch experiment/one-question-review).
+   Everything here is keyed to .is-stepper, which review-form.js adds once it has set the steps up.
+   If the script never runs, the form keeps its plain single-page layout and still works. */
+
+/* Without the stepper: progress, Back/Continue and the starter sentences stay hidden; every question shows. */
+.q-progress, .q-back, .q-next { display: none; }
+.q-step { display: grid; gap: var(--space-comfortable); }
+.q-step + .q-step { padding-top: var(--space-comfortable); border-top: 1px solid var(--color-border); }
+.q-title { font-size: var(--text-xl); font-weight: var(--font-weight-semibold); line-height: var(--line-height-snug); letter-spacing: -0.01em; padding: 0; }
+.q-title:focus { outline: none; }
+.q-lead { margin-top: calc(var(--space-base) * -1); }
+.option--wide { grid-column: 1 / -1; }
+
+/* Chips: small horizontal choices (how to talk). */
+.q-chips { display: flex; flex-wrap: wrap; gap: var(--space-tight); }
+.q-chip {
+  display: inline-flex; align-items: center; gap: var(--space-tight); min-height: var(--target-min);
+  padding: var(--space-tight) var(--space-base); border: 1px solid var(--color-border-strong); border-radius: 999px;
+  background: var(--color-surface); font-size: var(--text-sm); cursor: pointer;
+  transition: border-color var(--duration-fast) var(--ease), background-color var(--duration-fast) var(--ease);
+}
+.q-chip input { width: 1rem; height: 1rem; margin: 0; accent-color: var(--color-accent-ink); }
+.q-chip:hover { border-color: var(--color-text-primary); }
+.q-chip:has(input:checked) { border-color: var(--color-text-primary); background: var(--color-state-hover); font-weight: var(--font-weight-medium); }
+.q-chip:has(input:focus-visible) { outline: var(--focus-width) solid var(--color-focus); outline-offset: var(--focus-offset); }
+.q-chip input:focus-visible { outline: none; }
+
+/* Starter sentences under question 3. */
+.q-starters[hidden] { display: none; }
+.q-starters { display: grid; gap: var(--space-tight); }
+.q-starters__label { font-size: var(--text-sm); color: var(--color-text-secondary); }
+.q-starters__list { display: flex; flex-wrap: wrap; gap: var(--space-tight); }
+.q-starter {
+  min-height: var(--target-min); padding: var(--space-tight) var(--space-base);
+  border: 1px dashed var(--color-border-strong); border-radius: 999px; background: transparent;
+  font: inherit; font-size: var(--text-sm); color: var(--color-text-primary); text-align: left; cursor: pointer;
+  transition: border-color var(--duration-fast) var(--ease), background-color var(--duration-fast) var(--ease);
+}
+.q-starter:hover { border-style: solid; border-color: var(--color-text-primary); background: var(--color-state-hover); }
+.q-starter:focus-visible { outline: var(--focus-width) solid var(--color-focus); outline-offset: var(--focus-offset); }
+.q-starter.is-used { border-style: solid; border-color: var(--color-accent-ink); color: var(--color-accent-ink); }
+
+.q-nav { display: grid; gap: var(--space-snug); }
+.q-send { width: 100%; }
+
+/* ---- Stepper on ---- */
+.is-stepper { gap: var(--space-roomy); }
+.is-stepper .q-progress { display: flex; align-items: center; gap: var(--space-base); }
+.q-progress__count { font-size: var(--text-sm); font-weight: var(--font-weight-medium); color: var(--color-text-secondary); font-variant-numeric: tabular-nums; min-width: 2.75rem; }
+.q-progress__bar { flex: 1; height: 3px; border-radius: 3px; background: var(--color-border); overflow: hidden; }
+.q-progress__fill { display: block; height: 100%; width: 20%; background: var(--color-accent); border-radius: inherit; transition: width var(--duration-slow) var(--ease); }
+
+.is-stepper .q-step { display: none; }
+.is-stepper .q-step.is-current { display: grid; animation: q-in var(--duration-default) var(--ease) both; }
+.is-stepper .q-step + .q-step { padding-top: 0; border-top: 0; }
+.is-stepper .q-title { font-size: var(--text-2xl); letter-spacing: -0.02em; }
+.is-stepper.is-back .q-step.is-current { animation-name: q-in-back; }
+@keyframes q-in { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+@keyframes q-in-back { from { opacity: 0; transform: translateY(-12px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .is-stepper .q-step.is-current { animation: none; } }
+
+/* Room for the tallest question, so the buttons don't jump about between screens on desktop. */
+@media (min-width: 1024px) { .is-stepper .q-step.is-current { min-height: 24rem; align-content: start; } }
+
+.is-stepper .q-nav { grid-template-columns: auto 1fr; }
+.is-stepper .q-back { display: inline-flex; }
+.is-stepper .q-next { display: inline-flex; grid-column: 2; }
+.is-stepper .q-send { display: none; grid-column: 2; }
+.is-stepper.is-first .q-back { visibility: hidden; }
+.is-stepper.is-last .q-next { display: none; }
+.is-stepper.is-last .q-send { display: inline-flex; }
+.is-stepper .q-footnote { display: none; }
+.is-stepper.is-last .q-footnote { display: block; }
+.is-stepper .form-footer { border-top: 0; padding-top: 0; }
+
+/* Answer options read as choices, not as field labels (.field label would make them bold and larger). */
+.q-step .option, .q-step .q-chip { font-weight: var(--font-weight-regular); font-size: var(--text-sm); align-items: center; }
+.q-step .option:has(input:checked) { font-weight: var(--font-weight-medium); }
+.q-step .consent { align-items: flex-start; }
+.is-stepper .q-title { font-size: clamp(1.625rem, 1.3rem + 1vw, 2.125rem); margin-bottom: var(--space-tight); }
+.is-stepper .q-step > .hint { margin-top: calc(var(--space-snug) * -1); }
+.is-stepper.is-first .q-nav { grid-template-columns: 1fr; }
+.is-stepper.is-first .q-back { display: none; }
+.is-stepper.is-first .q-next { grid-column: 1; }
+/* A floated legend stops being the fieldset's special caption and becomes an ordinary grid item, so the gap applies. */
+.q-step > legend.q-title { float: left; width: 100%; }
+.q-step .q-chip { padding: var(--space-tight) var(--space-base); }
+.q-step .option { padding: var(--space-snug) var(--space-base); }
+.q-lead { font-size: var(--text-sm); color: var(--color-text-secondary); }
+.q-title { text-wrap: balance; }
+/* Clear the sticky header when the card scrolls into view between screens. */
+#review-form { scroll-margin-top: 5.5rem; }
+.q-starter { border-radius: var(--radius-md); }
+.is-stepper [data-step="context"] .textarea { min-height: 7rem; }
+/* Phones: Back / Continue stay within thumb reach at the bottom of the screen while the card is in view. */
+@media (max-width: 767px) {
+  .is-stepper .form-footer {
+    position: sticky; bottom: 0; z-index: 2;
+    margin-inline: calc(var(--space-comfortable) * -1); padding: var(--space-snug) var(--space-comfortable) calc(var(--space-snug) + env(safe-area-inset-bottom));
+    background: var(--color-surface); border-top: 1px solid var(--color-border);
+  }
+  .is-stepper .form-footer .form-fallback, .is-stepper .q-footnote { display: none; }
+  .is-stepper.is-last .q-footnote { display: none; }
+  .is-stepper .q-nav .btn { white-space: nowrap; }
+  .is-stepper .q-back { padding-inline: var(--space-base); }
+}
 /* Prose: long-form reading (insight articles, privacy, terms). Reading width 720px, comfortable rhythm. */
 .prose { max-width: var(--measure); font-size: var(--text-base); }
 .prose > * + * { margin-top: var(--space-base); }
