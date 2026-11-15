@@ -25,6 +25,10 @@
 .q-chip:has(input:focus-visible) { outline: var(--focus-width) solid var(--color-focus); outline-offset: var(--focus-offset); }
 .q-chip input:focus-visible { outline: none; }
 
+/* "Welcome back" line for a visitor resumed from a saved draft. */
+.q-restored { margin: 0; padding: var(--space-snug) var(--space-base); border-left: 3px solid var(--color-accent); background: var(--color-state-hover); border-radius: var(--radius-md); font-size: var(--text-sm); color: var(--color-text-secondary); }
+.q-restored[hidden] { display: none; }
+
 /* Starter sentences under question 3. */
 .q-starters[hidden] { display: none; }
 .q-starters { display: grid; gap: var(--space-tight); }
@@ -62,7 +66,7 @@
 /* Room for the tallest question, so the buttons don't jump about between screens on desktop. */
 @media (min-width: 1024px) { .is-stepper .q-step.is-current { min-height: 24rem; align-content: start; } }
 
-.is-stepper .q-nav { grid-template-columns: auto 1fr; }
+.is-stepper .q-nav { grid-template-columns: auto minmax(0, 1fr); } /* minmax(0,…): a long label can never push the card wider than the screen */
 .is-stepper .q-back { display: inline-flex; }
 .is-stepper .q-next { display: inline-flex; grid-column: 2; }
 .is-stepper .q-send { display: none; grid-column: 2; }

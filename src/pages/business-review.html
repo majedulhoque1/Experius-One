@@ -30,6 +30,9 @@ scripts: review-form.js, vendor/gsap.min.js, motion/core.js, motion/next-steps.j
           <span class="q-progress__bar"><span class="q-progress__fill" data-q-fill></span></span>
         </div>
 
+        <!-- Shown by review-form.js only when it has put a returning visitor back where they left off. -->
+        <p class="q-restored" data-q-restored hidden>Welcome back. We kept your answers from earlier.</p>
+
         <div class="error-summary" id="error-summary" tabindex="-1" role="alert" hidden>
           <h3>{{icon:alert}}<span>There is a problem</span></h3>
           <ul></ul>
@@ -112,6 +115,20 @@ scripts: review-form.js, vendor/gsap.min.js, motion/core.js, motion/next-steps.j
             <p class="hint" id="f-website-hint">A website, Facebook page or Instagram profile helps us prepare. Leave it blank if you don't have one yet.</p>
             <input class="input" id="f-website" maxlength="200" name="website" type="text" inputmode="url" autocomplete="url" aria-describedby="f-website-hint">
           </div>
+          <!-- Optional, and asked here so the contact screen stays short enough to fit one phone screen. -->
+          <div class="field">
+            <label for="f-source">How did you hear about us? <span class="optional">(optional)</span></label>
+            <div class="select-wrap"><select class="select" id="f-source" name="source">
+              <option value="">Choose one</option>
+              <option>LinkedIn</option>
+              <option>Facebook or Instagram</option>
+              <option>YouTube</option>
+              <option>Google search</option>
+              <option>Someone recommended you</option>
+              <option>A partner introduced us</option>
+              <option>Other</option>
+            </select></div>
+          </div>
         </fieldset>
 
         <!-- 5 · Contact last, once they've invested in the answers. -->
@@ -146,19 +163,6 @@ scripts: review-form.js, vendor/gsap.min.js, motion/core.js, motion/next-steps.j
           </div>
           <!-- Country is no longer asked: review-form.js sends the browser's time zone instead. -->
           <input type="hidden" name="country" id="f-country">
-          <div class="field">
-            <label for="f-source">How did you hear about us? <span class="optional">(optional)</span></label>
-            <div class="select-wrap"><select class="select" id="f-source" name="source">
-              <option value="">Choose one</option>
-              <option>LinkedIn</option>
-              <option>Facebook or Instagram</option>
-              <option>YouTube</option>
-              <option>Google search</option>
-              <option>Someone recommended you</option>
-              <option>A partner introduced us</option>
-              <option>Other</option>
-            </select></div>
-          </div>
           <div class="field" data-field="consent">
             <label class="option consent"><input type="checkbox" id="f-consent" aria-required="true" name="consent" aria-describedby="f-consent-error"><span class="option__text">I agree that Experius can use these details to reply to my request. See the <a href="/privacy.html">privacy notice</a> for what we keep and for how long.</span></label>
             <p class="field-error" id="f-consent-error">{{icon:alert}}<span></span></p>
@@ -169,7 +173,7 @@ scripts: review-form.js, vendor/gsap.min.js, motion/core.js, motion/next-steps.j
           <div class="q-nav">
             <button class="btn btn--secondary q-back" type="button" data-q-back>Back</button>
             <button class="btn btn--primary q-next" type="button" data-q-next>Continue</button>
-            <button class="btn btn--primary q-send" type="submit"><span>Send my request</span></button>
+            <button class="btn btn--primary q-send" type="submit"><span>Request my review</span></button>
           </div>
           <p class="q-footnote">We read every request before replying. There's no mailing list, and we won't share your details.</p>
           <p class="form-fallback">Prefer email? Write to <a href="mailto:hello@experius.xyz">hello@experius.xyz</a>.</p>

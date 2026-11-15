@@ -196,6 +196,7 @@
   var counterAll = form.querySelector('[data-q-total]');
   var fill = form.querySelector('[data-q-fill]');
   var progress = form.querySelector('.q-progress');
+  var restoredNote = form.querySelector('[data-q-restored]');
 
   function stepName(i) { return stepper.steps[i].getAttribute('data-step'); }
 
@@ -213,6 +214,7 @@
     fill.style.width = (100 * (stepper.index + 1) / total) + '%';
     progress.setAttribute('aria-hidden', 'true'); // announced through the status region instead
     failAlert.hidden = true;
+    if (restoredNote) restoredNote.hidden = true; // the "welcome back" line only belongs to the screen they resumed on
     if (!opts.silent) {
       status.textContent = 'Question ' + (stepper.index + 1) + ' of ' + total;
       // Focus the question itself, so screen readers read it and keyboard users start in the right place.
@@ -278,6 +280,7 @@
       if (needs) { startAt = n; break; }
     }
     show(startAt, { silent: true, history: 'replace' });
+    if (restoredNote && draft && startAt > 0) restoredNote.hidden = false; // after show(), which hides it
     track('form_step', (startAt + 1) + '/' + stepper.steps.length + ' ' + stepName(startAt));
 
     form.querySelector('[data-q-next]').addEventListener('click', next);
@@ -371,7 +374,7 @@
       submitting = false;
       submitBtn.classList.remove('is-loading');
       submitBtn.removeAttribute('aria-disabled');
-      submitBtn.querySelector('span').textContent = 'Send my request';
+      submitBtn.querySelector('span').textContent = 'Request my review';
       status.textContent = '';
       // Failed state: every value stays in the form; nothing is lost.
       failAlert.hidden = false;
